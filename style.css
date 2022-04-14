@@ -1,0 +1,80 @@
+*{
+    box-sizing: border-box;
+}
+
+body{
+    margin: 0;
+    min-height: 100vh;
+    background-color: hsl(223,25%,31%);
+    display: grid;
+    align-content: center;
+}
+
+main{
+    width: 100%;
+    padding: 2em;
+    max-width: 35rem;
+    margin-inline: auto;
+}
+
+.btn{
+    display: inline-block;
+    border: 0;
+    background-color: aliceblue;
+    color: hsl(224,29%,20%);
+    font-size: 1.5rem;
+    font-weight: 600;
+    border-radius: .25em;
+    padding: 1rem;
+    box-shadow: inset 0px -4px  rgba(0, 0, 0, .35);
+    cursor: pointer;
+}
+
+.btn--red{
+    background-color: red;
+    color: aliceblue;
+    font-size: 1rem;
+    text-transform: uppercase;
+}
+
+.btn--blue{
+    background-color: hsl(224,20%,43%);
+    color: aliceblue;
+    font-size: 1rem;
+    text-transform: uppercase;
+}
+
+.top{
+    background-color: hsl(223,35%,14%);
+    border-radius: .25em;
+    padding: 1.5em;
+    text-align: end;
+    margin-bottom: 1.5em;
+}
+
+.result{
+    color: aliceblue;
+    font-size: 3rem;
+    font-weight: 600;
+}
+
+.operations{
+    display: block;
+    color: aliceblue;
+    font-weight: 600;
+    font-family: sans-serif;
+    margin-bottom: .25em;
+}
+
+.control{
+    background-color: hsl(224,29%,20%);
+    padding: 1.5em;
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 1em;
+    border-radius: .25em;
+}
+
+.control > *:nth-last-child(2),.control > *:last-child{
+    grid-column: span 2;
+}
