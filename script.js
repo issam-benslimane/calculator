@@ -6,69 +6,86 @@ function initCalculator() {
 
     function handleClick(){
         const [key,value] = Object.entries(this.dataset)[0]
-        if(key === "nb") handleNumber({key,value})
-        if(key === "sep") handleSeparator(key)
-        if(key === "op") handleOperator({key,value})
+        if(key === "nb") handleNumber(value)
+        if(key === "sep") handleSeparator()
+        if(key === "op") handleOperator(value)
         if(key === "action") handleAction(value)
+        calc.updateKey(key)
     }
 
 
-    function handleNumber(...args){
-        const {currentNumber} = calc(...args)
-        updateScreen(currentNumber) 
+    function handleNumber(n){
+        calc.addNumber(n)
     }
 
-    function handleSeparator(key){
-        const {currentNumber} = calc({key})
-        updateScreen(currentNumber) 
+    function handleSeparator(){
+        calc.addSeparator()
     }
 
-    function handleOperator(...args){
-        const {total,currentOp,currentNumber} = calc(...args)
-        currentOp  && updateScreen(total,currentOp)
-        !currentOp  && updateScreen(currentNumber,currentOp)
+    function handleOperator(op){
+        calc.addOperator(op)
     }
 
     function handleAction(action){
-        if(action === "reset") calc = calculator()
-        if(action === "delete") {
-            const {currentNumber} = calc({key:action})
-            currentNumber && updateScreen(currentNumber) 
-        }
+        if(action === "reset") calc.reset()
+        if(action === "delete") calc.delete()
+        if(action === "equals") calc.showResult()
     }
 
     function calculator(){
-        updateScreen() 
         let total = currentNumber = 0
         let currentOp = null
         let lastKey = null
-        return ({key,value})=>{
-            if(key === "nb") {
+        let finalResult = false
+        return {
+            addNumber(value) {
+                if(finalResult) return
                 lastKey === "op" && (currentNumber = 0)
                 currentNumber = trimNb(currentNumber+value)
-            } 
-            if(key === "op") {
-                lastKey !== "op" && (total = currentOp ? operate(+total,+currentNumber)[currentOp] : currentNumber)
-                if(key === "="){
-                    currentOp = null
-                }
-                else currentOp = value
-            }
-            if(key === "sep"){
+                updateScreen(currentNumber)
+            } ,
+            addOperator(op) {
+                lastKey !== "op" && (total = currentOp ? operate(+total,+currentNumber)[currentOp] :  currentNumber)
+                currentOp = op
+                finalResult = false
+                updateScreen(total,`${total} ${op}`)
+            },
+            addSeparator(){
+                if(finalResult) return
                 lastKey === "op" && (currentNumber = 0)
                 if(currentNumber) !currentNumber.includes(".") && (currentNumber += ".")
                 else currentNumber += "."
-            }
-            if(key === "delete"){
+                updateScreen(currentNumber)
+            },
+            showResult() {
+                if(!currentOp) return
+                const temp = total
+                total = operate(+total,+currentNumber)[currentOp] || currentNumber
+                updateScreen(total,`${temp} ${currentOp} ${currentNumber} =`)
+                currentNumber=total
+                currentOp = null
+                finalResult = true
+            },
+            delete(){
+                if(finalResult) return this.reset()
                 if(lastKey === "op") return
-                (currentNumber = deleteLastCh(currentNumber))
+                currentNumber = currentNumber.slice(0,-1) || "0"
+                updateScreen(currentNumber)
+            },
+            updateKey(key){
+                lastKey = key
+            },
+            reset(){
+                total = 0
+                currentNumber = 0
+                currentOp = null
+                lastKey = null
+                finalResult = false
+                updateScreen(currentNumber,"")
             }
-            lastKey = key
-            return {currentNumber,total,currentOp}
         }
     }
 
-    function checkResult(r){}
 
     function operate(a,b){
         return {
@@ -79,26 +96,18 @@ function initCalculator() {
         }
     }
 
-    function deleteLastCh(n){
-        return n.slice(0,-1) || "0"
-    }
-
     function trimNb(n){
         return n[0] === "0" && !n.includes(".") ? n.slice(1) : n
     }
 
-    function updateScreen(n,op){
-        screenResult.textContent = n || "0"
-        !n && (screenOperations.textContent = "")
-        if(op){
-            op != "=" && (screenOperations.textContent = `${n} ${op}`)
-            op == "=" && (screenOperations.textContent = `${n}`)
-        }
+    function updateScreen(result,path){
+        screenResult.textContent = result
+        screenOperations.textContent = path ?? screenOperations.textContent
     }
 
 
     btns.forEach(e=>e.addEventListener("click",handleClick))
-    window.addEventListener("keydown",handleKey)
+    //window.addEventListener("keydown",handleKey)
 }
 
 initCalculator()
